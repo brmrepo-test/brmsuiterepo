@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ .Values.ocomc.labels.adminserver.name }}
+    namespace: {{ .Release.Namespace }}
+spec:
+    selector:
+        application: {{ .Values.ocomc.labels.adminserver.name }}
+    ports:
+    -   name: ocomc-adminserver-port
+        port: {{ .Values.ocomc.configEnv.adminsvrPort }}
+        targetPort: {{ .Values.ocomc.configEnv.adminsvrPort }}
+        protocol: TCP
+    type: {{ .Values.ocomc.service.type }}

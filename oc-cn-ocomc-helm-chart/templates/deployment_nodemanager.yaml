@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.ocomc.labels.nodemgr.name }}
+  labels:
+    app: {{ .Values.ocomc.labels.nodemgr.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- if eq .Values.ocomc.configEnv.eceEnabled true }}
+      application: {{ .Values.ocomc.labels.nodemgr.name }}
+      app: {{ .Values.ocomc.labels.ece.name }}
+      {{- else }}
+      application: {{ .Values.ocomc.labels.nodemgr.name }}
+      {{- end }}
+  template:
+      metadata:
+        labels:
+          {{- if eq .Values.ocomc.configEnv.eceEnabled true }}
+          application: {{ .Values.ocomc.labels.nodemgr.name }}
+          app: {{ .Values.ocomc.labels.ece.name }}
+          {{- else }}
+          application: {{ .Values.ocomc.labels.nodemgr.name }}
+          {{- end }}
+        annotations:
+          checksum/config1: {{ include (print $.Template.BasePath "/configmap_env_ocomc.yaml") . | sha256sum }}
+          checksum/config2: {{ include (print $.Template.BasePath "/configmap_ece_integration.yaml") . | sha256sum }}
+          checksum/config3: {{ include (print $.Template.BasePath "/configmap_adminserver.yaml") . | sha256sum }}
+          checksum/secret1: {{ include (print $.Template.BasePath "/secret_ocomc.yaml") . | sha256sum }}
+      spec:
+        affinity:
+          podAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: "application"
+                    operator: In
+                    values:
+                    - {{ .Values.ocomc.labels.adminserver.name | default "admin-server-app" }}
+                topologyKey: "kubernetes.io/hostname"
+        {{- if .Values.imagePullSecrets }}
+        imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+        {{- end }}
+        {{- if eq .Values.ocomc.configEnv.eceEnabled true }}
+        initContainers:
+        - image: {{ .Values.ece.imageRepository }}{{ .Values.ece.deployment.ecs.imageName }}:{{ .Values.ece.deployment.ecs.imageTag }}
+          imagePullPolicy: {{ .Values.ece.deployment.ecs.imagePullPolicy }}
+          name: {{ .Values.ocomc.labels.ece.name }}
+          volumeMounts:
+          - name: {{ .Values.ocomc.deployment.nodemgr.volMntInstall.name }}
+            mountPath: /home/charging/opt/ECE/
+          command: ["/bin/sh", "-c"]
+          args:
+          - mkdir -p /home/charging/opt/ECE/oceceserver/;
+            mkdir -p /home/charging/opt/ECE/ocecesdk/;
+            chmod 777 -R /home/charging/opt/ECE/;
+            cp -rf /home/charging/temp/* /home/charging/opt/ECE/oceceserver/;
+            cp -rf /home/charging/sdk/* /home/charging/opt/ECE/ocecesdk/;
+        {{- end }}
+        containers:
+        - image: {{ .Values.ocomc.imageRepository }}{{ .Values.ocomc.deployment.nodemgr.imageName }}:{{ .Values.ocomc.deployment.nodemgr.imageTag }}
+          imagePullPolicy: {{ .Values.ocomc.deployment.nodemgr.imagePullPolicy }}
+          name: {{ .Values.ocomc.labels.nodemgr.name }}
+          env:
+          - name: RESTART_COUNT
+            value: "{{ .Values.ocomc.configEnv.restart_count }}"
+          {{- if eq .Values.ocomc.configEnv.eceEnabled true }}
+          - name: COH_WKA
+            value: {{ .Values.ece.deployment.ecs.serviceName }}
+          - name: COH_CLUSTER
+            value: {{ .Values.ece.deployment.ecs.clusterName | quote }}
+          - name: KUBERNETES_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          {{- end }}
+          ports:
+          {{- if .Values.ocomc.configEnv.nmExternalPort }}
+          - containerPort: {{ .Values.ocomc.configEnv.nmExternalPort }}
+          {{- else }}
+          - containerPort: {{ .Values.ocomc.configEnv.nmPort }}
+          {{- end }}
+          envFrom:
+          - configMapRef:
+              name: {{ .Values.ocomc.configEnv.name }}
+          args:
+          - {{ .Values.ocomc.deployment.nodemgr.arg }}
+          volumeMounts:
+          - name: {{ .Values.ocomc.deployment.nodemgr.volMntInstall.name }}
+            mountPath: /home/ocomcuser/install/
+          - name: {{ .Values.ocomc.deployment.nodemgr.volMntKeyStore.name }}
+            mountPath: /home/ocomcuser/keystore/
+          - name: {{ .Values.ocomc.deployment.nodemgr.volMntExt.name }}
+            mountPath: /home/ocomcuser/ext
+          - name: {{ .Values.ocomc.deployment.nodemgr.volMntData.name }}
+            mountPath: /home/ocomcuser/data
+          - name: vol-secret
+            mountPath: /home/ocomcuser/secret
+          - name: vol-configmap
+            mountPath: /home/ocomcuser/config
+          {{- if eq .Values.ocomc.configEnv.eceEnabled true }}
+          - name: {{ .Values.ocomc.deployment.nodemgr.volMntSuspense.name }}
+            mountPath: /home/ocomcuser/suspense
+          {{- end }}
+          - name: configmap-adminserverimpl
+            mountPath: /home/ocomcuser/adminserver/config
+        volumes:
+        - name: {{ .Values.ocomc.deployment.nodemgr.volMntInstall.name }}
+          persistentVolumeClaim:
+              claimName: {{ .Values.ocomc.deployment.nodemgr.volMntInstall.name }}
+        - name: {{ .Values.ocomc.deployment.nodemgr.volMntKeyStore.name }}
+          persistentVolumeClaim:
+              claimName: {{ .Values.ocomc.deployment.nodemgr.volMntKeyStore.name }}
+        - name: {{ .Values.ocomc.deployment.nodemgr.volMntExt.name }}
+          persistentVolumeClaim:
+              claimName: {{ .Values.ocomc.deployment.nodemgr.volMntExt.name }}
+        - name: {{ .Values.ocomc.deployment.nodemgr.volMntData.name }}
+          persistentVolumeClaim:
+              claimName: {{ .Values.ocomc.deployment.nodemgr.volMntData.name }}
+        - name: vol-secret
+          secret:
+              secretName: {{ .Values.ocomc.secretEnv.name }}
+        - name: vol-configmap
+          configMap:
+              name: ocomc-ece-integration
+        {{- if eq .Values.ocomc.configEnv.eceEnabled true }}
+        - name: {{ .Values.ocomc.deployment.nodemgr.volMntSuspense.name }}
+          persistentVolumeClaim:
+              claimName: {{ .Values.ocomc.deployment.nodemgr.volMntSuspense.name }}
+        {{- end }}
+        - name: configmap-adminserverimpl
+          configMap:
+              name: configmap-adminserverimpl

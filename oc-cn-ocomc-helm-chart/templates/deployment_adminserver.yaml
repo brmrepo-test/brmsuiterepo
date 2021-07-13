@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.ocomc.labels.adminserver.name }}
+  labels:
+    application: {{ .Values.ocomc.labels.adminserver.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: {{ .Values.ocomc.labels.adminserver.name }}
+  template:
+      metadata:
+        labels:
+          application: {{ .Values.ocomc.labels.adminserver.name }}
+        annotations:
+          checksum/config1: {{ include (print $.Template.BasePath "/configmap_env_ocomc.yaml") . | sha256sum }}
+          checksum/config2: {{ include (print $.Template.BasePath "/configmap_ece_integration.yaml") . | sha256sum }}
+          checksum/config3: {{ include (print $.Template.BasePath "/configmap_adminserver.yaml") . | sha256sum }}
+          checksum/secret1: {{ include (print $.Template.BasePath "/secret_ocomc.yaml") . | sha256sum }}
+      spec:
+        {{- if .Values.imagePullSecrets }}
+        imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+        {{- end }}
+        {{- if eq .Values.ocomc.configEnv.eceEnabled true }}
+        initContainers:
+        - name: {{ .Values.ocomc.labels.ece.name }}
+          image: {{ .Values.ece.imageRepository }}{{ .Values.ece.deployment.ecs.imageName }}:{{ .Values.ece.deployment.ecs.imageTag }}
+          imagePullPolicy: {{ .Values.ece.deployment.ecs.imagePullPolicy }}
+          volumeMounts:
+          - name: {{ .Values.ocomc.deployment.adminserver.volMntInstall.name }}
+            mountPath: /home/charging/opt/ECE/
+          - name: vol-configmap
+            mountPath: /home/charging/config/
+          command: ["/bin/sh", "-c"]
+          args:
+          - mkdir -p /home/charging/opt/ECE/oceceserver/;
+            chmod 777 -R /home/charging/opt/ECE/;
+            cp -rf /home/charging/temp/* /home/charging/opt/ECE/oceceserver/;
+        {{- end }}
+        containers:
+        - image: {{ .Values.ocomc.imageRepository }}{{ .Values.ocomc.deployment.adminserver.imageName }}:{{ .Values.ocomc.deployment.adminserver.imageTag }}
+          imagePullPolicy: {{ .Values.ocomc.deployment.adminserver.imagePullPolicy }}
+          name: {{ .Values.ocomc.labels.adminserver.name }}
+          env:
+          - name: RESTART_COUNT
+            value: "{{ .Values.ocomc.configEnv.restart_count }}"
+          ports:
+          {{- if .Values.ocomc.configEnv.adminsvrExternalPort }}
+          - containerPort: {{ .Values.ocomc.configEnv.adminsvrExternalPort }}
+          {{- else }}
+          - containerPort: {{ .Values.ocomc.configEnv.adminsvrPort }}
+          {{- end }}
+          {{- if .Values.ocomc.configEnv.adminsvrFirewallPort }}
+          - containerPort: {{ .Values.ocomc.configEnv.adminsvrFirewallPort }}
+          {{- end }}
+          envFrom:
+          - configMapRef:
+              name: {{ .Values.ocomc.configEnv.name }}
+          args:
+          - {{ .Values.ocomc.deployment.adminserver.arg }}
+          volumeMounts:
+          - name: {{ .Values.ocomc.deployment.adminserver.volMntInstall.name }}
+            mountPath: /home/ocomcuser/install/
+          - name: {{ .Values.ocomc.deployment.adminserver.volMntKeyStore.name }}
+            mountPath: /home/ocomcuser/keystore/
+          - name: {{ .Values.ocomc.deployment.adminserver.volMntExt.name }}
+            mountPath: /home/ocomcuser/ext
+          - name: vol-secret
+            mountPath: /home/ocomcuser/secret
+          - name: configmap-adminserverimpl
+            mountPath: /home/ocomcuser/adminserver/config
+        volumes:
+        - name: {{ .Values.ocomc.deployment.adminserver.volMntInstall.name }}
+          persistentVolumeClaim:
+              claimName: {{ .Values.ocomc.deployment.adminserver.volMntInstall.name }}
+        - name: {{ .Values.ocomc.deployment.adminserver.volMntKeyStore.name }}
+          persistentVolumeClaim:
+              claimName: {{ .Values.ocomc.deployment.adminserver.volMntKeyStore.name }}
+        - name: {{ .Values.ocomc.deployment.adminserver.volMntExt.name }}
+          persistentVolumeClaim:
+              claimName: {{ .Values.ocomc.deployment.adminserver.volMntExt.name }}
+        - name: vol-secret
+          secret:
+              secretName: {{ .Values.ocomc.secretEnv.name }}
+        - name: vol-configmap
+          configMap:
+              name: ocomc-ece-integration
+        - name: configmap-adminserverimpl
+          configMap:
+              name: configmap-adminserverimpl

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-adminserverimpl
+  namespace:
+data:
+  AdminServerImpl.properties: |
+    com.nt.udc.admin.server.AdminServerImpl.cartridgeDir {{ .Values.ocomc.configEnv.adminsvrCartridgeFolder | default "cartridges" }}
+    com.nt.udc.admin.server.AdminServerImpl.patchDir     {{ .Values.ocomc.configEnv.adminsvrPatchFolder | default "customization" }}
+    com.nt.udc.admin.server.AdminServerImpl.ruleDir      {{ .Values.ocomc.configEnv.adminsvrRuleFolder | default "rules" }}
+    com.nt.udc.admin.server.AdminServerImpl.sharedRuleDir           {{ .Values.ocomc.configEnv.adminsvrSharedRuleFolder | default "UDC" }}
+    com.nt.udc.admin.server.AdminServerImpl.DSHost       {{ .Values.ocomc.configEnv.adminsvrDshost | default "localhost" }}
+    com.nt.udc.admin.server.AdminServerImpl.DSPort       {{ .Values.ocomc.configEnv.adminsvrDsport | default 13001 }}
+    com.nt.udc.admin.server.AdminServerImpl.authenticateUsers       {{ .Values.ocomc.configEnv.adminsvrAuthuser | default "true" }}
+    com.nt.udc.admin.server.AdminServerImpl.ldapURL       {{ .Values.ocomc.configEnv.adminsvrLdapurl | default "ldap://localhost:1389" }}
+    com.nt.udc.admin.server.AdminServerImpl.ldapDomain    {{ .Values.ocomc.configEnv.adminsvrLdapdomain | default "dc=ocomcexample.com" }}
+    com.nt.udc.admin.server.AdminServerImpl.groupInfo     {{ .Values.ocomc.configEnv.adminsvrGrpinfo | default "ou=PSA Users,ou=Groups" }}
+    com.nt.udc.admin.server.AdminServerImpl.adminDN       {{ .Values.ocomc.configEnv.adminsvrAdmindn | default "uid=Admin,ou=People" }}
+    com.nt.udc.admin.server.AdminServerImpl.memberVal     {{ .Values.ocomc.configEnv.adminsvrMemberval | default "member" }}
+    com.nt.udc.admin.server.AdminServerImpl.timeoutVal     {{ .Values.ocomc.configEnv.adminsvrTimeout | default 30 }}
+    com.nt.udc.admin.server.AdminServerImpl.disasterRecovery        {{ .Values.ocomc.configEnv.adminsvrDisasterRecovery | default "false" }}
+

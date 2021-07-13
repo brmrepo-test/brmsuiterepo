@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: {{ .Values.ocomc.pvc.adminserver.name }}
+    namespace: {{ .Release.Namespace }}
+spec:
+    storageClassName: {{ .Values.ocomc.storageClass.name }}-{{ .Release.Namespace }}
+    accessModes:
+    -   {{ .Values.ocomc.pvc.adminserver.accessModes }}
+    resources:
+        requests:
+            storage: {{ .Values.ocomc.pvc.adminserver.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: {{ .Values.ocomc.pvc.keystore.name }}
+    namespace: {{ .Release.Namespace }}
+spec:
+    storageClassName: {{ .Values.ocomc.storageClass.name }}-{{ .Release.Namespace }}
+    accessModes:
+    -   {{ .Values.ocomc.pvc.keystore.accessModes }}
+    resources:
+        requests:
+            storage: {{ .Values.ocomc.pvc.keystore.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: {{ .Values.ocomc.pvc.nodemgr.name }}
+    namespace: {{ .Release.Namespace }}
+spec:
+    storageClassName: {{ .Values.ocomc.storageClass.name }}-{{ .Release.Namespace }}
+    accessModes:
+    -   {{ .Values.ocomc.pvc.nodemgr.accessModes }}
+    resources:
+        requests:
+            storage: {{ .Values.ocomc.pvc.nodemgr.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: {{ .Values.ocomc.pvc.data.name }}
+    namespace: {{ .Release.Namespace }}
+spec:
+    storageClassName: {{ .Values.ocomc.storageClass.name }}-{{ .Release.Namespace }}
+    accessModes:
+    -   {{ .Values.ocomc.pvc.data.accessModes }}
+    resources:
+        requests:
+            storage: {{ .Values.ocomc.pvc.data.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: {{ .Values.ocomc.pvc.external.name }}
+    namespace: {{ .Release.Namespace }}
+spec:
+    storageClassName: {{ .Values.ocomc.storageClass.name }}-{{ .Release.Namespace }}
+    accessModes:
+    -   {{ .Values.ocomc.pvc.external.accessModes }}
+    resources:
+        requests:
+            storage: {{ .Values.ocomc.pvc.external.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: {{ .Values.ocomc.pvc.suspense.name }}
+    namespace: {{ .Release.Namespace }}
+spec:
+    storageClassName: {{ .Values.ocomc.storageClass.name }}-{{ .Release.Namespace }}
+    accessModes:
+    -   {{ .Values.ocomc.pvc.suspense.accessModes }}
+    resources:
+        requests:
+            storage: {{ .Values.ocomc.pvc.suspense.storage }}

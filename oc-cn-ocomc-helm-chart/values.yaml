@@ -1,0 +1,141 @@
+# Default values for oms.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullSecrets:
+ece:
+   imageRepository:
+   deployment:
+        ecs:
+           imageName: 
+           imageTag: 
+           imagePullPolicy: 
+           clusterName:
+           serviceName:
+ocomc:
+     imageRepository:
+     secretEnv:
+         name: ocomc-secret-env
+         nmKeypass:
+         nmKeystorepass:
+         adminKeypass:
+         adminKeystorepass:
+         walletPassword:
+         ocomcPassword:
+         adminServerPassword:
+     configEnv:
+         restart_count: 0
+         name: ocomc-configmap-env
+         sslEnabled:
+         eceEnabled:
+         ecePath:
+         walletFolder:
+         thirdPartyFolder:
+         cartridgeFolder:
+         nmDebug: false
+         nmPort: 55109
+         nmExternalPort:
+         nmIp:
+         nmKeystorePath:
+         nmDname:
+         nmsslAlias:
+         nmKeystoreValidity:
+         adminsvrPort: 55105
+         adminsvrExternalPort:
+         adminsvrFirewallPort:
+         adminsvrIp:
+         adminsvrAuthMode: false
+         adminsvrDebug: false
+         adminsvrCartridgeFolder:
+         adminsvrPatchFolder:
+         adminsvrRuleFolder:
+         adminsvrSharedRuleFolder:
+         adminsvrDshost:
+         adminsvrDsport:
+         adminsvrAuthuser:
+         adminsvrLdapurl:
+         adminsvrLdapdomain:
+         adminsvrGrpinfo:
+         adminsvrAdmindn:
+         adminsvrMemberval:
+         adminsvrTimeout:
+         adminsvrDisasterRecovery: false
+         adminsvrTruststorePath:
+         adminsvrKeystorePath:
+         adminsvrDname:
+         adminsvrsslAlias:
+         adminsvrKeystoreValidity:
+         adminclientTruststorePath:
+         ocomcSoftwarePath:
+         inventoryFilePath:
+         oudRootUserDn:
+         oudPath:
+         oudLdapPort:
+         oudBaseDn:
+         adminConnectPort:
+         hostName:
+         oracleHome:
+         forceGenSslcert: false         
+     service:
+         type:
+     labels:
+         adminserver:
+             name: admin-server-app
+         nodemgr:
+             name: node-mgr-app
+         ece:
+             name: ece
+     pvc:
+         adminserver:
+             name: admin-server-pvc
+             accessModes: ReadWriteMany
+             storage: 5Gi
+         nodemgr:
+             name: node-manager-pvc
+             accessModes: ReadWriteMany
+             storage: 5Gi
+         keystore:
+             name: vol-keystore
+             accessModes: ReadWriteMany
+             storage: 1Gi
+         data:
+             name: vol-data
+             accessModes: ReadWriteMany
+             storage: 5Gi
+         external:
+             name: vol-external
+             accessModes: ReadWriteMany
+             storage: 1Gi
+         suspense:
+             name: vol-suspense
+             accessModes: ReadWriteMany
+             storage: 1Gi
+     storageClass:
+         name:  
+     deployment:
+         adminserver:
+             imageName:
+             imageTag:
+             imagePullPolicy:
+             arg: adminsvr
+             volMntInstall:
+                 name: admin-server-pvc
+             volMntKeyStore:
+                 name: vol-keystore
+             volMntExt:
+                 name: vol-external
+         nodemgr:
+             imageName:
+             imageTag:
+             imagePullPolicy:
+             arg: nodemgr
+             volMntInstall:
+                 name: node-manager-pvc
+             volMntKeyStore:
+                 name: vol-keystore
+             volMntExt:
+                 name: vol-external
+             volMntData:
+                 name: vol-data
+             volMntSuspense:
+                 name: vol-suspense

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ .Values.ocomc.labels.nodemgr.name }}
+    namespace: {{ .Release.Namespace }}
+spec:
+    selector:
+        application: {{ .Values.ocomc.labels.nodemgr.name }}
+    ports:
+    -   name: ocomc-nodemgr-port
+        port: {{ .Values.ocomc.configEnv.nmPort }}
+        targetPort: {{ .Values.ocomc.configEnv.nmPort }}
+        protocol: TCP
+    type: {{ .Values.ocomc.service.type }}
