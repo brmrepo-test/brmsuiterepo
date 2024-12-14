@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ocomc-ece-integration
+  namespace:
+data:
+  charging-coherence-override-dev.xml: |
+    <?xml version="1.0" encoding="windows-1252" ?>
+    <!-- All coherence configuration should be taken from this file -->
+    <!-- Point to this file via -Dtangosol.coherence.override=charging-coherence-override-dev.xml-->
+    <coherence>
+        <cluster-config>
+            <service-guardian>
+                <timeout-milliseconds>3600000</timeout-milliseconds>
+            </service-guardian>
+            <member-identity>
+                <cluster-name system-property="tangosol.coherence.cluster">{{ .Values.ece.deployment.ecs.clusterName | quote}}</cluster-name>
+            </member-identity>
+
+            <!-- ECE persistence environment -->
+            <persistence-environments>
+                <persistence-environment id="ece-environment">
+                    <persistence-mode system-property="ece.persistence.mode">on-demand</persistence-mode>
+                </persistence-environment>
+            </persistence-environments>
+
+            <packet-publisher>
+                <packet-delivery>
+                    <timeout-milliseconds>300000</timeout-milliseconds>
+                </packet-delivery>
+            </packet-publisher>
+
+
+            <cluster-quorum-policy>
+                <timeout-survivor-quorum>3</timeout-survivor-quorum>
+            </cluster-quorum-policy>
+
+            <services>
+                <service id="1">
+                    <init-params>
+                        <init-param id="2222">
+                            <param-name>graveyard-size</param-name>
+                            <param-value>0</param-value>
+                        </init-param>
+                    </init-params>
+                </service>
+            </services>
+
+            <serializers>
+                <serializer id="pof">
+                    <class-name>com.tangosol.io.pof.ConfigurablePofContext</class-name>
+                    <init-params>
+                        <init-param>
+                            <param-type>String</param-type>
+                            <param-value system-property="tangosol.pof.config">charging-pof-config.xml</param-value>
+                        </init-param>
+                    </init-params>
+                </serializer>
+            </serializers>
+        </cluster-config>
+
+        <logging-config>
+            <destination system-property="tangosol.coherence.log">log4j2</destination>
+            <severity-level system-property="tangosol.coherence.log.level">9</severity-level>
+            <message-format>Oracle Coherence {version} (thread={thread}, member={member}): {text}</message-format>
+        </logging-config>
+
+        <configurable-cache-factory-config>
+            <class-name>com.tangosol.net.ExtensibleConfigurableCacheFactory</class-name>
+            <init-params>
+                <init-param>
+                    <param-type>java.lang.String</param-type>
+                    <param-value system-property="tangosol.coherence.cacheconfig">charging-cache-config.xml</param-value>
+                </init-param>
+            </init-params>
+        </configurable-cache-factory-config>
+
+        <management-config>
+            <read-only system-property="tangosol.coherence.management.readonly">false</read-only>
+            <reporter>
+                <configuration system-property="tangosol.coherence.management.report.configuration">reports/report-all.xml</configuration>
+            </reporter>
+        </management-config>
+
+        <federation-config>
+            <participants>
+                <participant>
+                    <name system-property="tangosol.coherence.cluster">{{ .Values.ece.deployment.ecs.clusterName | quote}}</name>
+                    <remote-addresses>
+                        <socket-address>
+                            <address>237.12.13.17</address>
+                            <port>15000</port>
+                        </socket-address>
+                    </remote-addresses>
+                </participant>
+            </participants>
+        </federation-config>
+    </coherence>
+

@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: {{ .Values.ocomc.configEnv.name }}
+    namespace: {{ .Release.Namespace }}
+data:
+  OCOMC_SSL_ENABLED: {{ .Values.ocomc.configEnv.sslEnabled | quote }}
+  OCOMC_IS_OCECE_REQUIRED: {{ .Values.ocomc.configEnv.eceEnabled | quote }}
+  OCOMC_OCECE_HOME_PATH: {{ .Values.ocomc.configEnv.ecePath | quote }}
+  OCOMC_WALLET_FOLDER: {{ .Values.ocomc.configEnv.walletFolder | quote }}
+  OCOMC_EXT_THIRD_PARTY_JARS_FOLDER: {{ .Values.ocomc.configEnv.thirdPartyFolder | quote }}
+  OCOMC_EXT_CARTRIDGE_FOLDER: {{ .Values.ocomc.configEnv.cartridgeFolder | quote }}
+  OCOMC_NM_DEBUG_MODE: {{ .Values.ocomc.configEnv.nmDebug | quote }}
+  {{- if .Values.ocomc.configEnv.nmExternalPort }}
+  OCOMC_NM_PORT: {{ .Values.ocomc.configEnv.nmExternalPort | quote }}
+  {{- else }}
+  OCOMC_NM_PORT: {{ .Values.ocomc.configEnv.nmPort | quote }}
+  {{- end }}
+  OCOMC_NM_IP: {{ .Values.ocomc.configEnv.nmIp | quote }}
+  OCOMC_NM_KS_LOC: {{ .Values.ocomc.configEnv.nmKeystorePath | quote }}
+  OCOMC_NM_DNAME: {{ .Values.ocomc.configEnv.nmDname | quote }}
+  OCOMC_NM_ALIAS: {{ .Values.ocomc.configEnv.nmsslAlias | quote }}
+  OCOMC_NM_KEYSTORE_VALIDITY: {{ .Values.ocomc.configEnv.nmKeystoreValidity | quote }}
+  {{- if .Values.ocomc.configEnv.adminsvrExternalPort }}
+  OCOMC_ADMINSVR_PORT: {{ .Values.ocomc.configEnv.adminsvrExternalPort | quote }}
+  {{- else }}
+  OCOMC_ADMINSVR_PORT: {{ .Values.ocomc.configEnv.adminsvrPort | quote }}
+  {{- end }}
+  {{- if .Values.ocomc.configEnv.adminsvrFirewallPort }}
+  OCOMC_ADMINSVR_FIREWALL_PORT: {{ .Values.ocomc.configEnv.adminsvrFirewallPort | quote }}
+  {{- end }}
+  OCOMC_ADMINSVR_IP: {{ .Values.ocomc.configEnv.adminsvrIp | quote }}
+  OCOMC_ADMINSVR_AUTH_MODE: {{ .Values.ocomc.configEnv.adminsvrAuthMode | quote }}
+  OCOMC_ADMINSVR_DEBUG_MODE: {{ .Values.ocomc.configEnv.adminsvrDebug | quote }}
+  OCOMC_ADMINSVR_CARTRIDGEDIR: {{ .Values.ocomc.configEnv.adminsvrCartridgeFolder | quote }}
+  OCOMC_ADMINSVR_PATCHDIR: {{ .Values.ocomc.configEnv.adminsvrPatchFolder | quote }}
+  OCOMC_ADMINSVR_RULEDIR: {{ .Values.ocomc.configEnv.adminsvrRuleFolder | quote }}
+  OCOMC_ADMINSVR_SHAREDRULEDIR: {{ .Values.ocomc.configEnv.adminsvrSharedRuleFolder | quote }}
+  OCOMC_ADMINSVR_DSHOST: {{ .Values.ocomc.configEnv.adminsvrDshost | quote }}
+  OCOMC_ADMINSVR_DSPORT: {{ .Values.ocomc.configEnv.adminsvrDsport | quote }}
+  OCOMC_ADMINSVR_AUTHENTICATEUSERS: {{ .Values.ocomc.configEnv.adminsvrAuthuser | quote }}
+  OCOMC_ADMINSVR_LDAPURL: {{ .Values.ocomc.configEnv.adminsvrLdapurl | quote }}
+  OCOMC_ADMINSVR_LDAPDOMAIN: {{ .Values.ocomc.configEnv.adminsvrLdapdomain | quote }}
+  OCOMC_ADMINSVR_GROUPINFO: {{ .Values.ocomc.configEnv.adminsvrGrpinfo | quote }}
+  OCOMC_ADMINSVR_ADMINDN: {{ .Values.ocomc.configEnv.adminsvrAdmindn | quote }}
+  OCOMC_ADMINSVR_MEMBERVAL: {{ .Values.ocomc.configEnv.adminsvrMemberval | quote }}
+  OCOMC_ADMINSVR_TIMEOUTVAL: {{ .Values.ocomc.configEnv.adminsvrTimeout | quote }}
+  OCOMC_ADMINSVR_DISASTERRECOVERY: {{ .Values.ocomc.configEnv.adminsvrDisasterRecovery | quote }}
+  OCOMC_ADMINSVR_TS_LOC: {{ .Values.ocomc.configEnv.adminsvrTruststorePath | quote }}
+  OCOMC_ADMINSVR_KS_LOC: {{ .Values.ocomc.configEnv.adminsvrKeystorePath | quote }}
+  OCOMC_ADMINSVR_DNAME: {{ .Values.ocomc.configEnv.adminsvrDname | quote }}
+  OCOMC_ADMINSVR_ALIAS: {{ .Values.ocomc.configEnv.adminsvrsslAlias | quote }}
+  OCOMC_ADMINSVR_KEYSTORE_VALIDITY: {{ .Values.ocomc.configEnv.adminsvrKeystoreValidity | quote }}
+  OCOMC_ADMINCLIENT_TS_LOC: {{ .Values.ocomc.configEnv.adminclientTruststorePath | quote }}
+  OCOMC_SOFTWARE_PACK_PATH: {{ .Values.ocomc.configEnv.ocomcSoftwarePath | quote }}
+  OCOMC_INVENTORY_FILE_PATH: {{ .Values.ocomc.configEnv.inventoryFilePath | quote }}
+  OCOMC_OUD_ROOT_USER_DN: {{ .Values.ocomc.configEnv.oudRootUserDn | quote }}
+  OCOMC_OUD_INSTANCE_PATH: {{ .Values.ocomc.configEnv.oudPath | quote }}
+  OCOMC_OUD_LDAP_LISTEN_PORT: {{ .Values.ocomc.configEnv.oudLdapPort | quote }}
+  OCOMC_OUD_DIRECTORY_BASE_DN: {{ .Values.ocomc.configEnv.oudBaseDn | quote }}
+  OCOMC_OUD_ADMINISTRATION_CONNECTOR_PORT: {{ .Values.ocomc.configEnv.adminConnectPort | quote }}
+  OCOMC_HOST_NAME: {{ .Values.ocomc.configEnv.hostName | quote }}
+  ORACLE_HOME: {{ .Values.ocomc.configEnv.oracleHome | quote }}
+  IS_CNE_ENV: "true"
+  OCOMC_FORCE_REGENERATE_SSL_CERT: {{ .Values.ocomc.configEnv.forceGenSslcert | default "false" | quote }}
